@@ -1,10 +1,23 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Star, Minus, Plus, ShoppingBag, Truck, ShieldCheck, ArrowLeft, Heart, Share2, MessageCircle } from 'lucide-react';
+import { Star, Minus, Plus, ShoppingBag, Truck, ShieldCheck, ArrowLeft, Heart, Share2, MessageCircle, Beaker } from 'lucide-react';
 import { useData, useCart, useWishlist } from '../App';
 import { ProductCard } from '../components/ProductCard';
 import { Seo } from '../components/Seo';
+
+const OIL_SIZES = {
+    'Essential Oils': [
+        { label: '10ml', multiplier: 1 },
+        { label: '30ml', multiplier: 2.8 },
+        { label: '50ml', multiplier: 4.5 }
+    ],
+    'Carrier Oils': [
+        { label: '100ml', multiplier: 1 },
+        { label: '200ml', multiplier: 1.9 },
+        { label: '500ml', multiplier: 4.5 }
+    ]
+};
 
 export const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -14,6 +27,10 @@ export const ProductDetails: React.FC = () => {
   const { addToWishlist, isInWishlist, removeFromWishlist } = useWishlist();
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState<string>('');
+  
+  // Size selection state
+  const [selectedSize, setSelectedSize] = useState<string>('');
+  const [currentPrice, setCurrentPrice] = useState<number>(0);
 
   const product = products.find(p => p.id === id);
 
@@ -25,9 +42,21 @@ export const ProductDetails: React.FC = () => {
   useEffect(() => {
     if (product) {
       setSelectedImage(product.image);
+      
+      // Initialize Size for Oils
+      if (product.category === 'Essential Oils') {
+          setSelectedSize('10ml');
+          setCurrentPrice(product.price);
+      } else if (product.category === 'Carrier Oils') {
+          setSelectedSize('100ml');
+          setCurrentPrice(product.price);
+      } else {
+          setSelectedSize('');
+          setCurrentPrice(product.price);
+      }
     }
     window.scrollTo(0,0);
-  }, [product, id]); // Added id to dependency to scroll on related product click
+  }, [product, id]);
 
   if (!product) {
     return (
@@ -38,12 +67,17 @@ export const ProductDetails: React.FC = () => {
     );
   }
 
+  const handleSizeChange = (size: string, multiplier: number) => {
+      setSelectedSize(size);
+      setCurrentPrice(Math.round(product.price * multiplier));
+  };
+
   const handleAddToCart = () => {
-    addToCart(product, quantity);
+    addToCart(product, quantity, selectedSize || undefined, currentPrice);
   };
 
   const handleBuyNow = () => {
-    addToCart(product, quantity);
+    addToCart(product, quantity, selectedSize || undefined, currentPrice);
     navigate('/cart');
   };
 
@@ -56,6 +90,9 @@ export const ProductDetails: React.FC = () => {
   };
 
   const images = [product.image, product.image2, product.image3].filter(Boolean) as string[];
+
+  // Determine available sizes if applicable
+  const availableSizes = OIL_SIZES[product.category as keyof typeof OIL_SIZES];
 
   return (
     <div className="min-h-screen py-12 animate-fade-in-up">
@@ -140,13 +177,37 @@ export const ProductDetails: React.FC = () => {
               </div>
 
               <div className="flex items-baseline space-x-4 mb-8">
-                 <span className="text-4xl font-bold text-stone-900">Rs. {product.price.toLocaleString()}</span>
+                 <span className="text-4xl font-bold text-stone-900">Rs. {currentPrice.toLocaleString()}</span>
                  {product.discountBadge && (
-                   <span className="text-xl text-stone-400 line-through">Rs. {(product.price * 1.15).toFixed(0)}</span>
+                   <span className="text-xl text-stone-400 line-through">Rs. {(currentPrice * 1.15).toFixed(0)}</span>
                  )}
               </div>
 
-              <p className="text-stone-600 leading-relaxed mb-10 text-lg font-light">{product.longDescription}</p>
+              <p className="text-stone-600 leading-relaxed mb-8 text-lg font-light">{product.longDescription}</p>
+
+              {/* Size Selector for Oils */}
+              {availableSizes && (
+                  <div className="mb-8 p-4 bg-stone-50 rounded-xl border border-stone-100">
+                      <div className="flex items-center gap-2 mb-3 text-sm font-bold text-stone-700">
+                          <Beaker className="h-4 w-4" /> Select Volume
+                      </div>
+                      <div className="flex flex-wrap gap-3">
+                          {availableSizes.map((size) => (
+                              <button
+                                  key={size.label}
+                                  onClick={() => handleSizeChange(size.label, size.multiplier)}
+                                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                                      selectedSize === size.label 
+                                          ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200 scale-105' 
+                                          : 'bg-white text-stone-600 border border-stone-200 hover:border-emerald-500 hover:text-emerald-600'
+                                  }`}
+                              >
+                                  {size.label}
+                              </button>
+                          ))}
+                      </div>
+                  </div>
+              )}
 
               {/* Actions */}
               <div className="space-y-6">
@@ -179,11 +240,11 @@ export const ProductDetails: React.FC = () => {
                   onClick={handleBuyNow}
                   className="w-full h-16 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all hover:scale-[1.01] shadow-xl shadow-emerald-200 text-lg flex items-center justify-center gap-3"
                 >
-                  <ShoppingBag className="h-6 w-6" /> Buy Now - Rs. {(product.price * quantity).toLocaleString()}
+                  <ShoppingBag className="h-6 w-6" /> Buy Now - Rs. {(currentPrice * quantity).toLocaleString()}
                 </button>
 
                 <a
-                  href={`https://wa.me/9779823376110?text=${encodeURIComponent(`Hi, I am interested in ${product.name}`)}`}
+                  href={`https://wa.me/9779823376110?text=${encodeURIComponent(`Hi, I am interested in ${product.name} (${selectedSize || 'Standard'})`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full h-14 border-2 border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white rounded-xl font-bold transition-all text-lg flex items-center justify-center gap-3 group"

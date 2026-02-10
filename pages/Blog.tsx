@@ -1,8 +1,9 @@
 
-import React, { useState, useRef } from 'react';
-import { ThumbsUp, MessageCircle, Share2, Image as ImageIcon, Bold, Italic, List, ListOrdered, Quote, Heading1, Heading2, Heading3, Undo2, Redo2, Eye, Link as LinkIcon, X } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { ThumbsUp, MessageCircle, Share2, Image as ImageIcon, Bold, Italic, List, ListOrdered, Quote, Heading1, Heading2, Heading3, Undo2, Redo2, Eye, Link as LinkIcon, X, Check } from 'lucide-react';
 import { useData, useAuth } from '../App';
 import { BlogPost } from '../types';
+import { useLocation } from 'react-router-dom';
 
 // Simple Markdown Parser Component to display the formatted text
 const RichTextRenderer: React.FC<{ content: string }> = ({ content }) => {
@@ -56,7 +57,9 @@ export const Blog: React.FC = () => {
   const [newPostContent, setNewPostContent] = useState('');
   const [newPostTitle, setNewPostTitle] = useState('');
   const [loading, setLoading] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const location = useLocation();
   
   // Cover Image State
   const [coverImage, setCoverImage] = useState('');
@@ -65,6 +68,24 @@ export const Blog: React.FC = () => {
   // History for Undo/Redo
   const [history, setHistory] = useState<string[]>(['']);
   const [historyIndex, setHistoryIndex] = useState(0);
+
+  // Scroll to post if query param exists
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const postId = params.get('postId');
+    if (postId) {
+      // Delay slightly to ensure rendering
+      setTimeout(() => {
+        const element = document.getElementById(postId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Add highlight effect
+          element.classList.add('ring-2', 'ring-emerald-500', 'ring-offset-4');
+          setTimeout(() => element.classList.remove('ring-2', 'ring-emerald-500', 'ring-offset-4'), 2000);
+        }
+      }, 500);
+    }
+  }, [location.search, posts]);
 
   // Update content and push to history
   const updateContent = (val: string) => {
@@ -193,6 +214,32 @@ export const Blog: React.FC = () => {
         alert("Failed to post");
     } finally {
         setLoading(false);
+    }
+  };
+
+  const handleShare = async (post: BlogPost) => {
+    const shareUrl = `${window.location.origin}${window.location.pathname}#/blog?postId=${post.id}`;
+    
+    const shareData = {
+      title: post.title || 'Mountain Herbs Nepal Blog',
+      text: `Check out this post by ${post.author}: ${post.title}`,
+      url: shareUrl,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error('Error sharing:', err);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setCopiedId(post.id);
+        setTimeout(() => setCopiedId(null), 2000);
+      } catch (err) {
+        console.error('Failed to copy', err);
+      }
     }
   };
 
@@ -325,7 +372,7 @@ export const Blog: React.FC = () => {
         {/* Feed */}
         <div className="space-y-8">
           {posts.map((post) => (
-            <div key={post.id} className="bg-white rounded-2xl shadow-sm overflow-hidden animate-fade-in border border-stone-100 hover:shadow-md transition-shadow">
+            <div key={post.id} id={post.id} className="bg-white rounded-2xl shadow-sm overflow-hidden animate-fade-in border border-stone-100 hover:shadow-md transition-shadow transition-all duration-300">
               <div className="p-6">
                  {/* Author Header */}
                  <div className="flex items-center space-x-3 mb-4">
@@ -365,8 +412,13 @@ export const Blog: React.FC = () => {
                         <span className="text-sm font-medium">{post.comments}</span>
                       </button>
                     </div>
-                    <button className="text-stone-400 hover:text-emerald-600 transition-colors p-2 hover:bg-emerald-50 rounded-full">
-                      <Share2 className="h-5 w-5" />
+                    <button 
+                      onClick={() => handleShare(post)}
+                      className={`flex items-center space-x-2 transition-all p-2 rounded-full ${copiedId === post.id ? 'text-emerald-600 bg-emerald-50' : 'text-stone-400 hover:text-emerald-600 hover:bg-emerald-50'}`}
+                      title={copiedId === post.id ? "Link Copied!" : "Share Post"}
+                    >
+                      {copiedId === post.id ? <Check className="h-5 w-5" /> : <Share2 className="h-5 w-5" />}
+                      {copiedId === post.id && <span className="text-xs font-bold">Copied!</span>}
                     </button>
                   </div>
               </div>

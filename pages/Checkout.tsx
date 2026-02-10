@@ -233,13 +233,14 @@ export const Checkout: React.FC = () => {
                <h3 className="font-bold text-stone-800 mb-4">In Your Bag</h3>
                <div className="space-y-3 max-h-80 overflow-y-auto pr-2 no-scrollbar">
                  {cartItems.map((item) => (
-                   <div key={item.id} className="flex items-center space-x-3">
+                   <div key={`${item.id}-${item.selectedSize}`} className="flex items-center space-x-3">
                      <div className="h-16 w-16 rounded-lg bg-white overflow-hidden border border-stone-200 relative">
                        <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
                        <span className="absolute top-0 right-0 bg-stone-500 text-white text-xs px-1.5 rounded-bl-lg font-bold">{item.quantity}</span>
                      </div>
                      <div className="flex-1">
                        <p className="text-sm font-medium text-stone-800 line-clamp-1">{item.name}</p>
+                       {item.selectedSize && <p className="text-xs text-stone-500 font-bold bg-white inline-block px-1 rounded border border-stone-200">{item.selectedSize}</p>}
                        <p className="text-sm text-stone-500">Rs. {item.price.toLocaleString()}</p>
                      </div>
                      <div className="text-sm font-bold text-stone-800">

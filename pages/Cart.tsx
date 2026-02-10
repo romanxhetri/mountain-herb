@@ -83,7 +83,7 @@ export const Cart: React.FC = () => {
           {/* Cart Items List */}
           <div className="lg:col-span-2 space-y-4">
             {cartItems.map((item) => (
-              <div key={item.id} className="bg-white p-4 rounded-2xl shadow-sm flex items-center space-x-4">
+              <div key={`${item.id}-${item.selectedSize}`} className="bg-white p-4 rounded-2xl shadow-sm flex items-center space-x-4">
                 <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl border border-stone-100">
                   <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
                 </div>
@@ -92,6 +92,11 @@ export const Cart: React.FC = () => {
                   <Link to={`/product/${item.id}`} className="hover:text-emerald-600 transition-colors">
                     <h3 className="text-lg font-bold text-stone-800 truncate">{item.name}</h3>
                   </Link>
+                  {item.selectedSize && (
+                      <span className="inline-block px-2 py-0.5 bg-stone-100 text-stone-500 text-xs rounded font-bold mb-1">
+                          {item.selectedSize}
+                      </span>
+                  )}
                   <p className="text-emerald-600 font-semibold">Rs. {item.price.toLocaleString()}</p>
                 </div>
 
