@@ -219,7 +219,7 @@ export const ProductDetails: React.FC = () => {
                     >
                       <Minus className="h-4 w-4" />
                     </button>
-                    <span className="px-4 font-bold text-lg min-w-[3rem] text-center">{quantity}</span>
+                    <span className="px-4 font-bold text-lg min-w-[3rem] text-center text-stone-900">{quantity}</span>
                     <button 
                       onClick={() => setQuantity(quantity + 1)}
                       className="px-4 h-full hover:bg-stone-50 transition-colors rounded-r-xl text-stone-500"

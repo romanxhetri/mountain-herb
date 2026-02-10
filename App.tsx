@@ -8,6 +8,7 @@ import { ProductDetails } from './pages/ProductDetails';
 import { Cart } from './pages/Cart';
 import { Checkout } from './pages/Checkout';
 import { Blog } from './pages/Blog';
+import { BlogPostDetails } from './pages/BlogPostDetails';
 import { Admin } from './pages/Admin';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
@@ -524,6 +525,7 @@ const App: React.FC = () => {
                       <Route path="/cart" element={<Cart />} />
                       <Route path="/checkout" element={<Checkout />} />
                       <Route path="/blog" element={<Blog />} />
+                      <Route path="/blog/:id" element={<BlogPostDetails />} />
                       <Route path="/admin" element={<Admin />} />
                       <Route path="/about" element={<About />} />
                       <Route path="/profile" element={<Profile />} />

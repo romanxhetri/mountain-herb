@@ -1,55 +1,10 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { ThumbsUp, MessageCircle, Share2, Image as ImageIcon, Bold, Italic, List, ListOrdered, Quote, Heading1, Heading2, Heading3, Undo2, Redo2, Eye, Link as LinkIcon, X, Check } from 'lucide-react';
+import { ThumbsUp, MessageCircle, Share2, Image as ImageIcon, Bold, Italic, List, ListOrdered, Quote, Heading1, Heading2, Heading3, Undo2, Redo2, Eye, Link as LinkIcon, X, Check, ArrowRight } from 'lucide-react';
 import { useData, useAuth } from '../App';
 import { BlogPost } from '../types';
-import { useLocation } from 'react-router-dom';
-
-// Simple Markdown Parser Component to display the formatted text
-const RichTextRenderer: React.FC<{ content: string }> = ({ content }) => {
-  if (!content) return <p className="text-stone-400 italic">Start typing to see preview...</p>;
-
-  // Split by new lines to handle blocks
-  const lines = content.split('\n');
-  
-  return (
-    <div className="space-y-2 text-stone-700 leading-relaxed font-sans">
-      {lines.map((line, index) => {
-        // Handle Headings
-        if (line.startsWith('# ')) return <h3 key={index} className="text-2xl font-bold text-stone-900 mt-4 mb-2">{line.replace('# ', '')}</h3>;
-        if (line.startsWith('## ')) return <h4 key={index} className="text-xl font-bold text-stone-800 mt-3 mb-2">{line.replace('## ', '')}</h4>;
-        if (line.startsWith('### ')) return <h5 key={index} className="text-lg font-bold text-stone-800 mt-2 mb-1">{line.replace('### ', '')}</h5>;
-        
-        // Handle Quotes
-        if (line.startsWith('> ')) return <blockquote key={index} className="border-l-4 border-emerald-500 pl-4 italic text-stone-600 my-4 bg-stone-50 py-2">{line.replace('> ', '')}</blockquote>;
-        
-        // Handle Lists
-        if (line.startsWith('- ')) return <li key={index} className="list-disc list-inside ml-4">{parseInline(line.replace('- ', ''))}</li>;
-        if (line.match(/^\d+\. /)) return <li key={index} className="list-decimal list-inside ml-4">{parseInline(line.replace(/^\d+\. /, ''))}</li>;
-
-        // Empty lines
-        if (line.trim() === '') return <br key={index} />;
-
-        return <p key={index}>{parseInline(line)}</p>;
-      })}
-    </div>
-  );
-};
-
-// Helper to parse inline styles like **bold** and *italic*
-const parseInline = (text: string): React.ReactNode[] => {
-  // Split by bold (**...**) or italic (*...*) markers
-  const parts = text.split(/(\*\*.*?\*\*|\*.*?\*)/g);
-  return parts.map((part, i) => {
-    if (part.startsWith('**') && part.endsWith('**')) {
-      return <strong key={i} className="font-bold text-stone-900">{part.slice(2, -2)}</strong>;
-    }
-    if (part.startsWith('*') && part.endsWith('*')) {
-      return <em key={i} className="italic text-stone-800">{part.slice(1, -1)}</em>;
-    }
-    return part;
-  });
-};
+import { useLocation, Link } from 'react-router-dom';
+import { RichTextRenderer } from '../components/RichTextRenderer';
 
 export const Blog: React.FC = () => {
   const { posts, addPost } = useData();
@@ -218,7 +173,7 @@ export const Blog: React.FC = () => {
   };
 
   const handleShare = async (post: BlogPost) => {
-    const shareUrl = `${window.location.origin}${window.location.pathname}#/blog?postId=${post.id}`;
+    const shareUrl = `${window.location.origin}${window.location.pathname}#/blog/${post.id}`;
     
     const shareData = {
       title: post.title || 'Mountain Herbs Nepal Blog',
@@ -241,6 +196,19 @@ export const Blog: React.FC = () => {
         console.error('Failed to copy', err);
       }
     }
+  };
+
+  // Helper to create a preview snippet from content
+  const getPreview = (content: string) => {
+      // Get first 3 lines or first 250 characters
+      const lines = content.split('\n').filter(l => l.trim() !== '');
+      if (lines.length > 3) {
+          return lines.slice(0, 3).join('\n') + '...';
+      }
+      if (content.length > 250) {
+          return content.substring(0, 250) + '...';
+      }
+      return content;
   };
 
   return (
@@ -384,16 +352,24 @@ export const Blog: React.FC = () => {
                   </div>
 
                   {/* Content */}
-                  <h2 className="text-xl font-bold text-stone-900 mb-3">{post.title}</h2>
-                  
-                  {post.image && (
-                    <div className="rounded-xl overflow-hidden mb-4 shadow-sm">
-                      <img src={post.image} alt="Post content" className="w-full h-auto object-cover max-h-96" />
-                    </div>
-                  )}
+                  <Link to={`/blog/${post.id}`} className="block group">
+                      <h2 className="text-xl font-bold text-stone-900 mb-3 group-hover:text-emerald-600 transition-colors">{post.title}</h2>
+                      
+                      {post.image && (
+                        <div className="rounded-xl overflow-hidden mb-4 shadow-sm">
+                          <img src={post.image} alt="Post content" className="w-full h-auto object-cover max-h-96 group-hover:scale-105 transition-transform duration-500" />
+                        </div>
+                      )}
+                  </Link>
 
-                  <div className="text-stone-700 mb-4">
-                      <RichTextRenderer content={post.content} />
+                  <div className="text-stone-700 mb-4 relative">
+                      {/* Truncated view for feed */}
+                      <RichTextRenderer content={getPreview(post.content)} />
+                      <div className="mt-4">
+                           <Link to={`/blog/${post.id}`} className="text-emerald-600 font-bold hover:underline inline-flex items-center text-sm">
+                                Read Full Post <ArrowRight className="h-4 w-4 ml-1" />
+                           </Link>
+                      </div>
                   </div>
 
                   {/* Actions */}
@@ -405,12 +381,12 @@ export const Blog: React.FC = () => {
                         </div>
                         <span className="text-sm font-medium">{post.likes}</span>
                       </button>
-                      <button className="flex items-center space-x-2 text-stone-500 hover:text-blue-500 transition-colors group">
+                      <Link to={`/blog/${post.id}`} className="flex items-center space-x-2 text-stone-500 hover:text-blue-500 transition-colors group">
                         <div className="p-2 rounded-full group-hover:bg-blue-50 transition-colors">
                            <MessageCircle className="h-5 w-5" />
                         </div>
                         <span className="text-sm font-medium">{post.comments}</span>
-                      </button>
+                      </Link>
                     </div>
                     <button 
                       onClick={() => handleShare(post)}
