@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Star, Minus, Plus, ShoppingBag, Truck, ShieldCheck, ArrowLeft, Heart, Share2 } from 'lucide-react';
+import { Star, Minus, Plus, ShoppingBag, Truck, ShieldCheck, ArrowLeft, Heart, Share2, MessageCircle } from 'lucide-react';
 import { useData, useCart, useWishlist } from '../App';
 import { ProductCard } from '../components/ProductCard';
 import { Seo } from '../components/Seo';
@@ -181,6 +181,15 @@ export const ProductDetails: React.FC = () => {
                 >
                   <ShoppingBag className="h-6 w-6" /> Buy Now - Rs. {(product.price * quantity).toLocaleString()}
                 </button>
+
+                <a
+                  href={`https://wa.me/9779823376110?text=${encodeURIComponent(`Hi, I am interested in ${product.name}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full h-14 border-2 border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white rounded-xl font-bold transition-all text-lg flex items-center justify-center gap-3 group"
+                >
+                  <MessageCircle className="h-6 w-6 group-hover:scale-110 transition-transform" /> Inquire via WhatsApp
+                </a>
               </div>
 
               <div className="mt-10 pt-8 border-t border-stone-100 grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -76,8 +76,26 @@ INSERT INTO site_settings (site_name, contact_email, contact_phone, referral_bon
 SELECT 'Mountain Herbs Nepal', 'greenmandux@gmail.com', '+977 9823376110', 200
 WHERE NOT EXISTS (SELECT 1 FROM site_settings);
 
+-- 8. CREATE STORAGE BUCKET
+-- This command requires the Storage API to be enabled and might fail in standard SQL editor without appropriate privileges.
+-- Usually, you must create buckets in the Supabase Dashboard: Storage -> New Bucket -> 'product-images' -> Public.
+-- However, we can try to insert if the schema permits:
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('product-images', 'product-images', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Allow public access to the bucket
+CREATE POLICY "Public Access"
+ON storage.objects FOR SELECT
+USING ( bucket_id = 'product-images' );
+
+-- Allow public/anon uploads (Simplifies admin panel for this demo context)
+CREATE POLICY "Public Upload"
+ON storage.objects FOR INSERT
+WITH CHECK ( bucket_id = 'product-images' );
+
 -- ==========================================
--- 8. INSERT FRESH DATA (Verified Matching Images)
+-- 9. INSERT FRESH DATA (Verified Matching Images)
 -- ==========================================
 
 -- ------------------------------------------

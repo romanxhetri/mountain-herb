@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Star, Eye } from 'lucide-react';
+import { ShoppingCart, Star, Eye, MessageCircle } from 'lucide-react';
 import { Product } from '../types';
 import { useCart } from '../App';
 
@@ -42,6 +42,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
            >
              <Eye className="h-5 w-5" />
            </Link>
+           <a
+             href={`https://wa.me/9779823376110?text=${encodeURIComponent(`Hi, I am interested in ${product.name}`)}`}
+             target="_blank"
+             rel="noopener noreferrer"
+             className="bg-[#25D366] p-3 rounded-full shadow-lg text-white hover:bg-[#128C7E] transition-all hover:scale-110"
+             title="Inquire on WhatsApp"
+             onClick={(e) => e.stopPropagation()}
+           >
+             <MessageCircle className="h-5 w-5" />
+           </a>
            <button
             onClick={(e) => {
               e.preventDefault();
@@ -90,4 +100,3 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     </div>
   );
 };
-    

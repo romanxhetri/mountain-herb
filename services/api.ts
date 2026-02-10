@@ -100,6 +100,30 @@ const mapPromoCode = (data: any): PromoCode => ({
 });
 
 export const api = {
+  // --- Storage ---
+  uploadImage: async (file: File, bucket: string = 'product-images'): Promise<string | null> => {
+    try {
+      const fileName = `${Date.now()}_${file.name.replace(/\s/g, '_')}`;
+      const { data, error } = await supabase.storage
+        .from(bucket)
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from(bucket)
+        .getPublicUrl(fileName);
+        
+      return publicUrl;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      throw error;
+    }
+  },
+
   // --- Products ---
   getProducts: async () => {
     const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
