@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { CheckCircle, Shield, Target, Users, ChevronDown, ChevronUp, MessageCircle, Quote } from 'lucide-react';
+import { SourcingMap } from '../components/SourcingMap';
 
 interface FAQItem {
   question: string;
@@ -121,6 +122,9 @@ export const About: React.FC = () => {
                 ))}
             </div>
         </div>
+
+        {/* Interactive Sourcing Map */}
+        <SourcingMap />
 
         {/* Community Impact Section (New) */}
         <div className="bg-stone-900 text-stone-300 rounded-[3rem] p-10 md:p-20 mb-32 relative overflow-hidden shadow-2xl">

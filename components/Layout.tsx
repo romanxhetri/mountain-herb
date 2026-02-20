@@ -39,6 +39,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'Shop', path: '/shop' },
+    { name: 'Yoga', path: '/yoga' },
+    { name: 'Retreat', path: '/retreat' },
     { name: 'Blog', path: '/blog' },
     { name: 'About', path: '/about' },
     { name: 'Contact', path: '/contact' },
@@ -282,6 +284,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                   <li><Link to="/about" className="hover:text-emerald-400 transition-colors">About Us</Link></li>
                   <li><Link to="/contact" className="hover:text-emerald-400 transition-colors">Contact</Link></li>
                   <li><Link to="/blog" className="hover:text-emerald-400 transition-colors">Blog</Link></li>
+                  <li><Link to="/yoga" className="hover:text-emerald-400 transition-colors">Yoga & Meditation</Link></li>
+                  <li><Link to="/retreat" className="hover:text-emerald-400 transition-colors">Retreats</Link></li>
                 </ul>
               </div>
 

@@ -18,6 +18,8 @@ import { Wishlist } from './pages/Wishlist';
 import { Contact } from './pages/Contact';
 import { Support } from './pages/Support';
 import { Wallet } from './pages/Wallet';
+import { Yoga } from './pages/Yoga';
+import { Retreat } from './pages/Retreat';
 import { Product, CartItem, BlogPost, User, Order, SiteSettings, ContactMessage, PromoCode } from './types';
 import { api } from './services/api';
 import { supabase } from './services/supabase';
@@ -533,6 +535,8 @@ const App: React.FC = () => {
                       <Route path="/wishlist" element={<Wishlist />} />
                       <Route path="/contact" element={<Contact />} />
                       <Route path="/support" element={<Support />} />
+                      <Route path="/yoga" element={<Yoga />} />
+                      <Route path="/retreat" element={<Retreat />} />
                     </Routes>
                   </Layout>
                 } />
